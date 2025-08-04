@@ -1,10 +1,13 @@
 import { router } from "expo-router"
 import { Button, Text, View } from "react-native"
+import { fontFamily } from "@/theme"
 
 export default function Index() {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Hello, world!</Text>
+      <Text style={{ fontFamily: fontFamily.bold, fontSize: 34 }}>
+        Hello, world!
+      </Text>
 
       <Button title="Nova meta" onPress={() => router.push("/target")} />
       <Button title="Transação" onPress={() => router.push("/transaction/1")} />
