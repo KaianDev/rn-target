@@ -5,7 +5,7 @@ import { List } from "@/components/list"
 import { PageHeader } from "@/components/page-header"
 import { Progress } from "@/components/progress"
 import { Transaction } from "@/components/transaction"
-import { TransactionType } from "@/enum/transaction-type"
+import { TransactionTypes } from "@/enum/transaction-type"
 import { Button } from "@/components/button"
 
 const details = {
@@ -19,14 +19,14 @@ const transactions = [
     id: "1",
     value: "R$ 120,00",
     date: "12/04/25",
-    type: TransactionType.Input,
+    type: TransactionTypes.Input,
   },
   {
     id: "2",
     value: "R$ 40,00",
     date: "12/04/25",
     description: "CDB de 100% no banco XPTO",
-    type: TransactionType.Output,
+    type: TransactionTypes.Output,
   },
 ]
 
