@@ -7,7 +7,6 @@ export const styles = StyleSheet.create({
     gap: 16,
   },
   listContent: {
-    paddingTop: 16,
     paddingBottom: 72,
   },
   title: {
@@ -15,7 +14,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray[200],
-    fontSize: fontSize.lg,
+    fontSize: fontSize.base,
     fontFamily: fontFamily.medium,
     color: colors.black,
   },

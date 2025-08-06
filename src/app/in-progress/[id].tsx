@@ -50,7 +50,7 @@ export default function InProgress() {
       <Progress data={details} />
       <List
         title="Transações"
-        data={[]}
+        data={transactions}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => (
           <Transaction data={item} onRemove={() => {}} />
