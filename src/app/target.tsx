@@ -1,5 +1,5 @@
 import { Alert, StatusBar, View } from "react-native"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { router, useLocalSearchParams } from "expo-router"
 
 import { useTargetDatabase } from "@/database/use-target-database"
@@ -28,6 +28,7 @@ export default function Target() {
 
     startTransition(async () => {
       if (id) {
+        update(Number(id))
       } else {
         create()
       }
@@ -48,6 +49,38 @@ export default function Target() {
       console.error(error)
     }
   }
+
+  async function update(id: number) {
+    try {
+      await targetDatabase.update({ id, name, amount })
+      Alert.alert("Meta atualizada", "Meta atualizada com sucesso!", [
+        {
+          text: "Ok",
+          onPress: router.back,
+        },
+      ])
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível atualizar a meta")
+      console.error(error)
+    }
+  }
+
+  async function fetchDetails(id: number) {
+    try {
+      const response = await targetDatabase.show(id)
+      setName(response.name)
+      setAmount(response.amount)
+    } catch (error) {
+      console.error(error)
+      Alert.alert("Erro", "Não foi possível carregar os detalhes da meta.")
+    }
+  }
+
+  useEffect(() => {
+    if (id) {
+      fetchDetails(Number(id))
+    }
+  }, [id])
 
   return (
     <View style={{ flex: 1, padding: 24 }}>

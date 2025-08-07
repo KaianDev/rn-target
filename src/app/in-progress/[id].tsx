@@ -68,6 +68,13 @@ export default function InProgress() {
     }, [])
   )
 
+  function handleNavigateToUpdateTarget() {
+    router.navigate({
+      pathname: "/target",
+      params: { id },
+    })
+  }
+
   if (isFetching) {
     return <Loading />
   }
@@ -84,7 +91,7 @@ export default function InProgress() {
         title={details.name}
         rightButton={{
           icon: "edit",
-          onPress: () => {},
+          onPress: handleNavigateToUpdateTarget,
         }}
       />
       <Progress data={details} />

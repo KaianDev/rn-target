@@ -71,7 +71,7 @@ export function useTargetDatabase() {
         UPDATE targets SET
           name = $name,
           amount = $amount,
-          update_at = CURRENT_TIMESTAMP
+          updated_at = CURRENT_TIMESTAMP
         WHERE id = $id`)
     statement.executeAsync({
       $id: data.id,
