@@ -6,9 +6,9 @@ import {
   View,
   ViewStyle,
 } from "react-native"
-import { styles } from "./styles"
-import { Separator } from "../separator"
 import { colors } from "@/theme"
+import { Separator } from "../separator"
+import { styles } from "./styles"
 
 type Props<T> = FlatListProps<T> & {
   title: string
