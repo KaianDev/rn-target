@@ -1,5 +1,6 @@
-import { StatusBar, View } from "react-native"
-import { router, useLocalSearchParams } from "expo-router"
+import { useCallback, useState, useTransition } from "react"
+import { Alert, StatusBar, View } from "react-native"
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router"
 
 import { List } from "@/components/list"
 import { PageHeader } from "@/components/page-header"
@@ -7,12 +8,9 @@ import { Progress } from "@/components/progress"
 import { Transaction } from "@/components/transaction"
 import { TransactionTypes } from "@/enum/transaction-type"
 import { Button } from "@/components/button"
-
-const details = {
-  current: "R$ 580,00",
-  target: "R$ 1.790,00",
-  percentage: 25,
-}
+import { useTargetDatabase } from "@/database/use-target-database"
+import { numberToCurrency } from "@/utils/number-helper"
+import { Loading } from "@/components/loading"
 
 const transactions = [
   {
@@ -31,7 +29,49 @@ const transactions = [
 ]
 
 export default function InProgress() {
-  const { id } = useLocalSearchParams()
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const [isFetching, startTransition] = useTransition()
+
+  const [details, setDetails] = useState({
+    name: "",
+    current: "R$ 0,00",
+    target: "R$ 0,00",
+    percentage: 0,
+  })
+  const targetDatabase = useTargetDatabase()
+
+  async function fetchDetails() {
+    try {
+      const response = await targetDatabase.show(Number(id))
+      setDetails({
+        name: response.name,
+        current: numberToCurrency(response.current),
+        percentage: response.percentage,
+        target: numberToCurrency(response.amount),
+      })
+    } catch (error) {
+      console.error(error)
+      Alert.alert("Erro", "Não foi possível carregar os detalhes da meta.")
+    }
+  }
+
+  function fetchData() {
+    startTransition(async () => {
+      const fetchDetailsPromise = fetchDetails()
+      await Promise.all([fetchDetailsPromise])
+    })
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData()
+    }, [])
+  )
+
+  if (isFetching) {
+    return <Loading />
+  }
+
   return (
     <View
       style={{
@@ -41,7 +81,7 @@ export default function InProgress() {
       }}>
       <StatusBar barStyle="dark-content" />
       <PageHeader
-        title="Apple Watch"
+        title={details.name}
         rightButton={{
           icon: "edit",
           onPress: () => {},
