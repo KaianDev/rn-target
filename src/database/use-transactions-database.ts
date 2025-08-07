@@ -46,8 +46,14 @@ export function useTransactionsDatabase() {
         ORDER BY created_at DESC
       `)
   }
+
+  async function remove(id: number) {
+    await db.runAsync("DELETE FROM transactions WHERE id = ?", id)
+  }
+
   return {
     create,
     listByTargetId,
+    remove,
   }
 }
