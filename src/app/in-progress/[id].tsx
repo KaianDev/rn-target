@@ -1,32 +1,18 @@
 import { useCallback, useState, useTransition } from "react"
 import { Alert, StatusBar, View } from "react-native"
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router"
+import dayjs from "dayjs"
 
 import { List } from "@/components/list"
 import { PageHeader } from "@/components/page-header"
 import { Progress } from "@/components/progress"
-import { Transaction } from "@/components/transaction"
+import { Transaction, TransactionProps } from "@/components/transaction"
 import { TransactionTypes } from "@/enum/transaction-type"
 import { Button } from "@/components/button"
-import { useTargetDatabase } from "@/database/use-target-database"
-import { numberToCurrency } from "@/utils/number-helper"
 import { Loading } from "@/components/loading"
-
-const transactions = [
-  {
-    id: "1",
-    value: "R$ 120,00",
-    date: "12/04/25",
-    type: TransactionTypes.Input,
-  },
-  {
-    id: "2",
-    value: "R$ 40,00",
-    date: "12/04/25",
-    description: "CDB de 100% no banco XPTO",
-    type: TransactionTypes.Output,
-  },
-]
+import { useTargetDatabase } from "@/database/use-target-database"
+import { useTransactionsDatabase } from "@/database/use-transactions-database"
+import { numberToCurrency } from "@/utils/number-helper"
 
 export default function InProgress() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -38,9 +24,11 @@ export default function InProgress() {
     target: "R$ 0,00",
     percentage: 0,
   })
+  const [transactions, setTransactions] = useState<TransactionProps[]>([])
   const targetDatabase = useTargetDatabase()
+  const transactionsDatabase = useTransactionsDatabase()
 
-  async function fetchDetails() {
+  async function fetchTargetDetails() {
     try {
       const response = await targetDatabase.show(Number(id))
       setDetails({
@@ -55,10 +43,30 @@ export default function InProgress() {
     }
   }
 
+  async function fetchTransactions() {
+    try {
+      const response = await transactionsDatabase.listByTargetId(Number(id))
+      setTransactions(
+        response.map((item) => ({
+          id: item.id.toString(),
+          date: dayjs(item.created_at).format("DD/MM/YYYY [às] HH:mm"),
+          type:
+            item.amount < 0 ? TransactionTypes.Output : TransactionTypes.Input,
+          value: numberToCurrency(Math.abs(item.amount)),
+          description: item.observation,
+        }))
+      )
+    } catch (error) {
+      console.error(error)
+      Alert.alert("Erro", "Não foi possível carregar as transações da meta.")
+    }
+  }
+
   function fetchData() {
     startTransition(async () => {
-      const fetchDetailsPromise = fetchDetails()
-      await Promise.all([fetchDetailsPromise])
+      const fetchTargetDetailsPromise = fetchTargetDetails()
+      const fetchTransactionsPromise = fetchTransactions()
+      await Promise.all([fetchTargetDetailsPromise, fetchTransactionsPromise])
     })
   }
 
