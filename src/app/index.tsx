@@ -10,7 +10,6 @@ import { Loading } from "@/components/loading"
 import { useTargetDatabase } from "@/database/use-target-database"
 import { useTransactionsDatabase } from "@/database/use-transactions-database"
 import { numberToCurrency } from "@/utils/number-helper"
-import { SummaryProps } from "@/components/summary"
 
 export default function Index() {
   const targetDatabase = useTargetDatabase()
