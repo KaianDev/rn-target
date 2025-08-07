@@ -5,31 +5,33 @@ import { router, useFocusEffect } from "expo-router"
 import { List } from "@/components/list"
 import { Button } from "@/components/button"
 import { Target, TargetProps } from "@/components/target"
-import { HomeHeader } from "@/components/home-header"
+import { HomeHeader, HomeHeaderProps } from "@/components/home-header"
 import { Loading } from "@/components/loading"
 import { useTargetDatabase } from "@/database/use-target-database"
+import { useTransactionsDatabase } from "@/database/use-transactions-database"
 import { numberToCurrency } from "@/utils/number-helper"
-
-const summary = {
-  total: "R$ 2.680,00",
-  input: {
-    label: "Entradas",
-    value: "R$ 6.184,90",
-  },
-  output: {
-    label: "Saídas",
-    value: "-R$ 883,65",
-  },
-}
+import { SummaryProps } from "@/components/summary"
 
 export default function Index() {
   const targetDatabase = useTargetDatabase()
+  const transactionsDatabase = useTransactionsDatabase()
   const [isFetching, startTransition] = useTransition()
   const [targets, setTargets] = useState<TargetProps[]>([])
+  const [summary, setSummary] = useState<HomeHeaderProps>({
+    total: "R$ 0,00",
+    input: {
+      label: "Entradas",
+      value: "R$ 0,00",
+    },
+    output: {
+      label: "Saídas",
+      value: "R$ 0,00",
+    },
+  })
 
   async function fetchTargets(): Promise<TargetProps[]> {
     try {
-      const response = await targetDatabase.listBySavedValue()
+      const response = await targetDatabase.listByPercentageValue()
       return response.map((item) => ({
         id: item.id.toString(),
         name: item.name,
@@ -43,12 +45,37 @@ export default function Index() {
     }
   }
 
+  async function fetchSummary(): Promise<HomeHeaderProps> {
+    try {
+      const response = await transactionsDatabase.summary()
+      return {
+        total: numberToCurrency(response.input + response.output),
+        input: {
+          label: "Entradas",
+          value: numberToCurrency(response.input),
+        },
+        output: {
+          label: "Entradas",
+          value: numberToCurrency(response.output),
+        },
+      }
+    } catch (error) {
+      console.error(error)
+      Alert.alert("Erro", "Não foi possível carregar o resumo")
+    }
+  }
+
   function fetchData() {
     startTransition(async () => {
       const targetDataPromise = fetchTargets()
-      const [targetData] = await Promise.all([targetDataPromise])
+      const summaryDataPromise = fetchSummary()
+      const [targetData, summaryData] = await Promise.all([
+        targetDataPromise,
+        summaryDataPromise,
+      ])
 
       setTargets(targetData)
+      setSummary(summaryData)
     })
   }
 
