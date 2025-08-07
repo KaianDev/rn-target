@@ -31,7 +31,7 @@ export default function Index() {
 
   async function fetchTargets(): Promise<TargetProps[]> {
     try {
-      const response = await targetDatabase.listByPercentageValue()
+      const response = await targetDatabase.listByClosestTarget()
       return response.map((item) => ({
         id: item.id.toString(),
         name: item.name,
