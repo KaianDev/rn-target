@@ -6,8 +6,9 @@ import { List } from "@/components/list"
 import { Button } from "@/components/button"
 import { Target, TargetProps } from "@/components/target"
 import { HomeHeader } from "@/components/home-header"
-import { useTargetDatabase } from "@/database/use-target-database"
 import { Loading } from "@/components/loading"
+import { useTargetDatabase } from "@/database/use-target-database"
+import { numberToCurrency } from "@/utils/number-helper"
 
 const summary = {
   total: "R$ 2.680,00",
@@ -33,8 +34,8 @@ export default function Index() {
         id: item.id.toString(),
         name: item.name,
         percentage: item.percentage.toFixed(0).concat("%"),
-        target: item.amount.toString(),
-        current: item.current.toString(),
+        target: numberToCurrency(item.amount),
+        current: numberToCurrency(item.current),
       }))
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar as metas")
@@ -45,7 +46,6 @@ export default function Index() {
   function fetchData() {
     startTransition(async () => {
       const targetDataPromise = fetchTargets()
-
       const [targetData] = await Promise.all([targetDataPromise])
 
       setTargets(targetData)
