@@ -44,7 +44,7 @@ Antes de executar o projeto, certifique-se de ter instalado:
 
 ```bash
 git clone https://github.com/KaianDev/rn-target.git
-cd target
+cd rn-target
 ```
 
 ### 2. Instale as dependências
